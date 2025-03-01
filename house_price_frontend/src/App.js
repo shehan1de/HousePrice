@@ -1,8 +1,10 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState } from 'react';
-import { Button, Col, Container, Form, Row } from 'react-bootstrap'; // Import Bootstrap components
+import './App.css';
+import houseImage from './img/house.jpg'; // Import the image
 
 function App() {
-  const [inputValues, setInputValues] = useState({
+  const [formData, setFormData] = useState({
     MedInc: '',
     HouseAge: '',
     AveRooms: '',
@@ -10,167 +12,230 @@ function App() {
     Population: '',
     AveOccup: '',
     Latitude: '',
-    Longitude: ''
+    Longitude: '',
   });
-  const [prediction, setPrediction] = useState(null);
+
+  const [errors, setErrors] = useState({});
+  const [predictedPrice, setPredictedPrice] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleChange = (e) => {
-    setInputValues({
-      ...inputValues,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: '' });
   };
 
-  const handlePredict = async () => {
-    const inputArray = [
-      parseFloat(inputValues.MedInc),
-      parseFloat(inputValues.HouseAge),
-      parseFloat(inputValues.AveRooms),
-      parseFloat(inputValues.AveBedrms),
-      parseFloat(inputValues.Population),
-      parseFloat(inputValues.AveOccup),
-      parseFloat(inputValues.Latitude),
-      parseFloat(inputValues.Longitude)
-    ];
+  const validateForm = () => {
+    const newErrors = {};
+    for (const key in formData) {
+      if (formData[key] === '') {
+        newErrors[key] = 'This field is required';
+      }
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
 
     try {
-      const response = await fetch('http://localhost:5000/predict', {
+      const response = await fetch('http://127.0.0.1:5000/predict', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ input: inputArray })
+        body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
-      setPrediction(data.prediction);
+      if (response.ok) {
+        const data = await response.json();
+        setPredictedPrice(data.predicted_price);
+        setErrorMessage('');
+      } else {
+        setErrorMessage('Failed to get prediction. Try again.');
+      }
     } catch (error) {
-      console.error("Error fetching prediction:", error);
+      setErrorMessage('Error: ' + error.message);
     }
   };
 
   return (
-    <Container style={{ marginTop: '50px' }}>
-      <h1 className="text-center mb-4">California House - Price Prediction</h1>
+    <div>
+      {/* Navigation Bar */}
+      <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div className="container-fluid">
+          <a className="navbar-brand">
+            Tabular California House Price Prediction System
+          </a>
+        </div>
+      </nav>
 
-      <Form>
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="MedInc">
-              <Form.Label>Median Income</Form.Label>
-              <Form.Control
-                type="number"
-                name="MedInc"
-                value={inputValues.MedInc}
-                onChange={handleChange}
-                placeholder="Enter Median Income"
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="HouseAge">
-              <Form.Label>House Age</Form.Label>
-              <Form.Control
-                type="number"
-                name="HouseAge"
-                value={inputValues.HouseAge}
-                onChange={handleChange}
-                placeholder="Enter House Age"
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+      <div className="container mt-5">
+        <div className="row">
+          {/* Form Section */}
+          <div className="col-md-6">
+            <div className="card">
+              <div className="card-body">
+                <h2 className="card-title text-center text-primary">Enter Details</h2>
+                {errorMessage && (
+                  <div className="alert alert-danger" role="alert">
+                    {errorMessage}
+                  </div>
+                )}
+                <form onSubmit={handleSubmit}>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Median Income</label>
+                        <input
+                          type="number"
+                          className={`form-control ${errors.MedInc ? 'is-invalid' : ''}`}
+                          name="MedInc"
+                          value={formData.MedInc}
+                          onChange={handleChange}
+                          required
+                        />
+                        {errors.MedInc && (
+                          <div className="invalid-feedback">{errors.MedInc}</div>
+                        )}
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">House Age</label>
+                        <input
+                          type="number"
+                          className={`form-control ${errors.HouseAge ? 'is-invalid' : ''}`}
+                          name="HouseAge"
+                          value={formData.HouseAge}
+                          onChange={handleChange}
+                          required
+                        />
+                        {errors.HouseAge && (
+                          <div className="invalid-feedback">{errors.HouseAge}</div>
+                        )}
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Average Rooms</label>
+                        <input
+                          type="number"
+                          className={`form-control ${errors.AveRooms ? 'is-invalid' : ''}`}
+                          name="AveRooms"
+                          value={formData.AveRooms}
+                          onChange={handleChange}
+                          required
+                        />
+                        {errors.AveRooms && (
+                          <div className="invalid-feedback">{errors.AveRooms}</div>
+                        )}
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Average Bedrooms</label>
+                        <input
+                          type="number"
+                          className={`form-control ${errors.AveBedrms ? 'is-invalid' : ''}`}
+                          name="AveBedrms"
+                          value={formData.AveBedrms}
+                          onChange={handleChange}
+                          required
+                        />
+                        {errors.AveBedrms && (
+                          <div className="invalid-feedback">{errors.AveBedrms}</div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Population</label>
+                        <input
+                          type="number"
+                          className={`form-control ${errors.Population ? 'is-invalid' : ''}`}
+                          name="Population"
+                          value={formData.Population}
+                          onChange={handleChange}
+                          required
+                        />
+                        {errors.Population && (
+                          <div className="invalid-feedback">{errors.Population}</div>
+                        )}
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Average Occupation</label>
+                        <input
+                          type="number"
+                          className={`form-control ${errors.AveOccup ? 'is-invalid' : ''}`}
+                          name="AveOccup"
+                          value={formData.AveOccup}
+                          onChange={handleChange}
+                          required
+                        />
+                        {errors.AveOccup && (
+                          <div className="invalid-feedback">{errors.AveOccup}</div>
+                        )}
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Latitude</label>
+                        <input
+                          type="number"
+                          className={`form-control ${errors.Latitude ? 'is-invalid' : ''}`}
+                          name="Latitude"
+                          value={formData.Latitude}
+                          onChange={handleChange}
+                          required
+                        />
+                        {errors.Latitude && (
+                          <div className="invalid-feedback">{errors.Latitude}</div>
+                        )}
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Longitude</label>
+                        <input
+                          type="number"
+                          className={`form-control ${errors.Longitude ? 'is-invalid' : ''}`}
+                          name="Longitude"
+                          value={formData.Longitude}
+                          onChange={handleChange}
+                          required
+                        />
+                        {errors.Longitude && (
+                          <div className="invalid-feedback">{errors.Longitude}</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <button type="submit" className="btn btn-primary w-100">
+                    Predict Price
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
 
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="AveRooms">
-              <Form.Label>Average Rooms</Form.Label>
-              <Form.Control
-                type="number"
-                name="AveRooms"
-                value={inputValues.AveRooms}
-                onChange={handleChange}
-                placeholder="Enter Average Rooms"
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="AveBedrms">
-              <Form.Label>Average Bedrooms</Form.Label>
-              <Form.Control
-                type="number"
-                name="AveBedrms"
-                value={inputValues.AveBedrms}
-                onChange={handleChange}
-                placeholder="Enter Average Bedrooms"
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-
-       {/* <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="Population">
-              <Form.Label>Population</Form.Label>
-              <Form.Control
-                type="number"
-                name="Population"
-                value={inputValues.Population}
-                onChange={handleChange}
-                placeholder="Enter Population"
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="AveOccup">
-              <Form.Label>Average Occupancy</Form.Label>
-              <Form.Control
-                type="number"
-                name="AveOccup"
-                value={inputValues.AveOccup}
-                onChange={handleChange}
-                placeholder="Enter Average Occupancy"
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-*/}
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="Latitude">
-              <Form.Label>Latitude</Form.Label>
-              <Form.Control
-                type="number"
-                name="Latitude"
-                value={inputValues.Latitude}
-                onChange={handleChange}
-                placeholder="Enter Latitude"
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="Longitude">
-              <Form.Label>Longitude</Form.Label>
-              <Form.Control
-                type="number"
-                name="Longitude"
-                value={inputValues.Longitude}
-                onChange={handleChange}
-                placeholder="Enter Longitude"
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Button variant="primary" onClick={handlePredict} block>
-          Get Prediction
-        </Button>
-      </Form>
-
-      {prediction !== null && (
-  <h2 style={{ marginTop: '20px' }}>Predicted Price: ${(prediction * 100000).toFixed(2)}</h2>
-)}
-    </Container>
+          {/* Prediction Display Section */}
+          <div className="col-md-6">
+            <div className="card">
+              <div className="card-body text-center">
+                <h2 className="text-primary">Predicted Price</h2>
+                {predictedPrice !== null ? (
+                  <>
+                    <h3 className="text-success">$ {predictedPrice*100000}</h3>
+                    
+                  </>
+                ) : (
+                  <h4 className="text-muted">Enter details to see prediction</h4>
+                )}
+                <img 
+                      src={houseImage} 
+                      alt="House"
+                      className="img-fluid mt-3 rounded"
+                      style={{ maxHeight: '400px', objectFit: 'cover' }}
+                    />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

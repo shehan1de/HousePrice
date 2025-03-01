@@ -1,38 +1,70 @@
-.App {
-  text-align: center;
+body {
+ background-color: #f8f9fa;
+ 
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+h1 {
+  color: #2c3e50;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.text-primary {
+  color: #1abc9c !important;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.text-success {
+  color: #27ae60 !important;
 }
 
-.App-link {
-  color: #61dafb;
+.card {
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.card-body {
+  background: #ffffff;
+  border-radius: 15px;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  border-color: #3498db;
+  margin-bottom:70px;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+  border-color: #2980b9;
+}
+
+.form-control:focus {
+  border-color: #1abc9c;
+  box-shadow: 0 0 5px rgba(26, 188, 156, 0.5);
+}
+
+.alert-success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.text-muted {
+  color: #7f8c8d !important;
+}
+
+/* Navbar Styling */
+.navbar {
+  block-size: 150px;
+  background: linear-gradient(70deg, #3498db 0%, #1abc9c 100%);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  color: #ffffff !important;
+  font-weight: bold;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+}
+
+.navbar-brand:hover {
+  color: #ecf0f1 !important;
 }
